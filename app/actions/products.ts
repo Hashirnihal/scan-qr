@@ -96,8 +96,11 @@ export async function createProduct(input: CreateProductInput) {
     throw new Error('Only admins can create products')
   }
 
-  // Generate QR code URL
-  const productUrl = `${process.env.NEXT_PUBLIC_APP_URL}/p/${input.code}`
+  // Generate QR code URL — prefer explicit APP_URL, fall back to VERCEL_URL (set automatically by Vercel)
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  const productUrl = `${baseUrl}/p/${input.code}`
   const qrCodeUrl = await QRCode.toDataURL(productUrl, {
     errorCorrectionLevel: 'H',
     type: 'image/png',
@@ -127,6 +130,37 @@ export async function createProduct(input: CreateProductInput) {
 
   revalidateTag('products')
   return product
+}
+
+/**
+ * Regenerate the QR code for a product using the current APP_URL.
+ * Call this to fix products whose QR still points to localhost.
+ */
+export async function regenerateProductQR(productId: string, productCode: string) {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('Unauthorized')
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  const productUrl = `${baseUrl}/p/${productCode}`
+  const qrCodeUrl = await QRCode.toDataURL(productUrl, {
+    errorCorrectionLevel: 'H',
+    type: 'image/png',
+    quality: 0.95,
+    margin: 1,
+    width: 300,
+  })
+
+  const { error } = await supabase
+    .from('products')
+    .update({ qr_code_url: qrCodeUrl, updated_at: new Date().toISOString() })
+    .eq('id', productId)
+
+  if (error) throw new Error(`Failed to regenerate QR: ${error.message}`)
+  revalidateTag('products')
+  return qrCodeUrl
 }
 
 export async function updateProduct(
