@@ -4,13 +4,20 @@ import { createClient } from '@/lib/supabase/server'
 import QRCode from 'qrcode'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
+export interface SubItem {
+  id: string
+  name: string
+  description: string
+  image_url?: string
+}
+
 export interface Product {
   id: string
   code: string
   name: string
   description: string | null
   image_url: string | null
-  custom_fields: Record<string, unknown>
+  custom_fields: { sub_items?: SubItem[] } & Record<string, unknown>
   qr_code_url: string | null
   created_by: string
   created_at: string
@@ -22,7 +29,47 @@ export interface CreateProductInput {
   code: string
   name: string
   description?: string
+  imageUrl?: string
   customFields?: Record<string, unknown>
+}
+
+/**
+ * Upload an image to Supabase Storage and return its public URL.
+ * The base64 data URL from the client is decoded server-side.
+ */
+export async function uploadProductImage(
+  base64DataUrl: string,
+  fileName: string
+): Promise<string> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('Unauthorized')
+
+  // Strip "data:image/...;base64," prefix
+  const matches = base64DataUrl.match(/^data:(.+);base64,(.+)$/)
+  if (!matches) throw new Error('Invalid image data')
+  const mimeType = matches[1]
+  const base64Data = matches[2]
+  const buffer = Buffer.from(base64Data, 'base64')
+
+  const ext = mimeType.split('/')[1] || 'png'
+  const path = `${user.id}/${Date.now()}-${fileName}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('product-images')
+    .upload(path, buffer, { contentType: mimeType, upsert: true })
+
+  if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`)
+
+  const { data: urlData } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(path)
+
+  return urlData.publicUrl
 }
 
 export async function createProduct(input: CreateProductInput) {
@@ -66,6 +113,7 @@ export async function createProduct(input: CreateProductInput) {
       code: input.code,
       name: input.name,
       description: input.description || null,
+      image_url: input.imageUrl || null,
       custom_fields: input.customFields || {},
       qr_code_url: qrCodeUrl,
       created_by: user.id,
@@ -113,8 +161,9 @@ export async function updateProduct(
     .from('products')
     .update({
       ...(input.name && { name: input.name }),
-      ...(input.description && { description: input.description }),
-      ...(input.customFields && { custom_fields: input.customFields }),
+      ...(input.description !== undefined && { description: input.description || null }),
+      ...(input.imageUrl !== undefined && { image_url: input.imageUrl || null }),
+      ...(input.customFields !== undefined && { custom_fields: input.customFields }),
       updated_at: new Date().toISOString(),
     })
     .eq('id', productId)

@@ -81,52 +81,55 @@ export default function PortalPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f6fb]">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#1a2d5a] border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading dashboard…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[#f4f6fb]">
       {/* Header */}
-      <div className="border-b border-border bg-card">
+      <header className="bg-[#1a2d5a] text-white shadow-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Product Dashboard
-            </h1>
-            {user && (
-              <p className="text-sm text-muted-foreground">{user.email}</p>
-            )}
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+              <span className="text-lg font-bold">D</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-none">Admin Dashboard</h1>
+              {user && (
+                <p className="text-xs text-blue-200">{user.email}</p>
+              )}
+            </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Link href="/">
-              <Button variant="outline">View Public</Button>
+              <button className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">
+                View Site
+              </button>
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={handleLogout}
-              className="gap-2"
+              className="flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10"
             >
               <LogOut className="h-4 w-4" />
               Logout
-            </Button>
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Content */}
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="space-y-8">
           {/* Form Section */}
           {isFormOpen && (
             <div>
-              <h2 className="mb-4 text-xl font-semibold text-foreground">
+              <h2 className="mb-4 text-lg font-semibold text-[#1a2d5a]">
                 {selectedProduct ? 'Edit Product' : 'Create New Product'}
               </h2>
               <ProductForm
@@ -143,8 +146,11 @@ export default function PortalPage() {
           {/* Products Section */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">
-                Products ({products.length})
+              <h2 className="text-lg font-semibold text-[#1a2d5a]">
+                Products{' '}
+                <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-sm text-primary">
+                  {products.length}
+                </span>
               </h2>
               {!isFormOpen && (
                 <Button
@@ -152,7 +158,7 @@ export default function PortalPage() {
                     setSelectedProduct(null)
                     setIsFormOpen(true)
                   }}
-                  className="gap-2"
+                  className="gap-2 bg-[#1a2d5a] text-white hover:bg-[#1a2d5a]/90"
                 >
                   <Plus className="h-4 w-4" />
                   New Product

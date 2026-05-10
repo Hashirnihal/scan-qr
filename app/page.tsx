@@ -1,107 +1,104 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { QrCode, Package, Zap } from 'lucide-react'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Navigation */}
-        <nav className="flex items-center justify-between py-6">
+    <main className="min-h-screen bg-[#f4f6fb]">
+      {/* Navigation */}
+      <header className="bg-[#1a2d5a]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
-            <QrCode className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground">ScanQR</span>
+            <QrCode className="h-7 w-7 text-white" />
+            <span className="text-xl font-bold text-white">ScanQR</span>
           </div>
-          <div className="flex gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/portal">
-              <Button>Dashboard</Button>
-            </Link>
-          </div>
-        </nav>
+          <Link
+            href="/auth/login"
+            className="rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+          >
+            Admin Login
+          </Link>
+        </div>
+      </header>
 
-        {/* Hero Section */}
-        <section className="space-y-12 py-20 text-center">
-          <div className="space-y-6">
-            <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
-              Product Information at a Scan
-            </h1>
-            <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-              Create QR codes that link to detailed product information. Share them anywhere and let customers discover your products instantly.
+      {/* Hero */}
+      <div className="bg-[#1a2d5a]">
+        <div className="mx-auto max-w-6xl px-4 pb-20 pt-16 text-center sm:px-6">
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            Product Information
+            <br />
+            <span className="text-blue-300">at a Scan</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100">
+            Create QR codes that link to beautiful product pages. Let customers
+            discover your products instantly with a simple scan.
+          </p>
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Link
+              href="/auth/login"
+              className="rounded-xl bg-white px-8 py-3 text-base font-semibold text-[#1a2d5a] transition-opacity hover:opacity-90"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <h2 className="mb-10 text-center text-2xl font-bold text-[#1a2d5a]">
+          Why Choose ScanQR?
+        </h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a2d5a]/10">
+              <QrCode className="h-7 w-7 text-[#1a2d5a]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#1a2d5a]">Instant QR Codes</h3>
+            <p className="mt-2 text-sm text-gray-500">
+              Generate unique QR codes for each product. Download as PNG instantly.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Link href="/auth/login">
-              <Button size="lg" className="w-full sm:w-auto">
-                Get Started
-              </Button>
-            </Link>
-            <Link href="/#features">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Learn More
-              </Button>
-            </Link>
+          <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a2d5a]/10">
+              <Package className="h-7 w-7 text-[#1a2d5a]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#1a2d5a]">Multi-Item Products</h3>
+            <p className="mt-2 text-sm text-gray-500">
+              Group multiple items under one QR code with images and descriptions.
+            </p>
           </div>
-        </section>
 
-        {/* Features Section */}
-        <section id="features" className="space-y-12 py-20">
-          <h2 className="text-center text-3xl font-bold text-foreground">
-            Why Choose ScanQR?
-          </h2>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Feature 1 */}
-            <div className="rounded-lg border border-border bg-card p-8 text-center">
-              <QrCode className="mx-auto h-12 w-12 text-primary" />
-              <h3 className="mt-4 text-xl font-semibold text-foreground">
-                Instant QR Codes
-              </h3>
-              <p className="mt-2 text-muted-foreground">
-                Generate unique QR codes for each product. Download as SVG or PNG.
-              </p>
+          <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a2d5a]/10">
+              <Zap className="h-7 w-7 text-[#1a2d5a]" />
             </div>
-
-            {/* Feature 2 */}
-            <div className="rounded-lg border border-border bg-card p-8 text-center">
-              <Package className="mx-auto h-12 w-12 text-primary" />
-              <h3 className="mt-4 text-xl font-semibold text-foreground">
-                Rich Product Info
-              </h3>
-              <p className="mt-2 text-muted-foreground">
-                Showcase images, descriptions, and custom fields for each product.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="rounded-lg border border-border bg-card p-8 text-center">
-              <Zap className="mx-auto h-12 w-12 text-primary" />
-              <h3 className="mt-4 text-xl font-semibold text-foreground">
-                Fast & Reliable
-              </h3>
-              <p className="mt-2 text-muted-foreground">
-                Lightning-fast product pages optimized for mobile scanning.
-              </p>
-            </div>
+            <h3 className="text-lg font-semibold text-[#1a2d5a]">No Login Required</h3>
+            <p className="mt-2 text-sm text-gray-500">
+              Customers scan the QR and see product details immediately — no account needed.
+            </p>
           </div>
-        </section>
+        </div>
 
-        {/* CTA Section */}
-        <section className="space-y-8 rounded-lg border border-border bg-card p-12 text-center">
-          <h2 className="text-3xl font-bold text-foreground">
-            Ready to get started?
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Create your account and start generating QR codes for your products today.
+        {/* CTA */}
+        <div className="mt-12 rounded-2xl bg-[#1a2d5a] p-10 text-center shadow-md">
+          <h2 className="text-2xl font-bold text-white">Ready to get started?</h2>
+          <p className="mt-2 text-blue-200">
+            Sign in to your admin dashboard and create your first product.
           </p>
-          <Link href="/auth/login">
-            <Button size="lg">Sign In Now</Button>
+          <Link
+            href="/auth/login"
+            className="mt-6 inline-block rounded-xl bg-white px-8 py-3 text-sm font-semibold text-[#1a2d5a] hover:opacity-90"
+          >
+            Sign In Now
           </Link>
-        </section>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-[#1a2d5a] py-6 text-center text-xs text-blue-200">
+        ScanQR &mdash; Powered by Innovation
+      </footer>
     </main>
   )
 }
