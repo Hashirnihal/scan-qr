@@ -1,3 +1,8 @@
+// Allow self-signed / corporate proxy TLS certificates in development
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {

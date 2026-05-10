@@ -15,9 +15,14 @@ export async function getEmailByUsername(username: string): Promise<string | nul
       .ilike('username', username.trim())
       .single()
 
-    if (error || !data?.email) return null
+    if (error) {
+      console.error('[getEmailByUsername] DB error:', error)
+      return null
+    }
+    if (!data?.email) return null
     return data.email as string
-  } catch {
+  } catch (err) {
+    console.error('[getEmailByUsername] Caught exception:', err)
     return null
   }
 }
