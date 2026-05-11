@@ -81,6 +81,10 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
   const handleFileChange = async (id: string, file: File | null) => {
     if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image must be 10 MB or smaller.')
+      return
+    }
     const previewUrl = URL.createObjectURL(file)
     updateSubItem(id, { pendingFile: file, previewUrl })
   }
@@ -220,7 +224,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
               {/* Image + Fields */}
               <div className="flex gap-4">
                 <div
-                  className="flex h-28 w-28 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-secondary/50 hover:border-primary/50"
+                  className="flex h-28 w-28 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-secondary/50 hover:border-primary/50"
                   onClick={() => fileInputRefs.current[item.id]?.click()}
                 >
                   {item.previewUrl ? (
@@ -234,7 +238,8 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                   ) : (
                     <div className="flex flex-col items-center gap-1 text-muted-foreground">
                       <ImageIcon className="h-8 w-8" />
-                      <span className="text-xs">Upload</span>
+                      <span className="text-xs font-medium">Upload</span>
+                      <span className="text-[10px] text-muted-foreground/70">Max 10 MB</span>
                     </div>
                   )}
                 </div>
