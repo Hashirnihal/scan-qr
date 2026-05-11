@@ -11,32 +11,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Edit2, MoreVertical, Trash2, Eye, Package } from 'lucide-react'
+import { Edit2, MoreVertical, Trash2, Eye, Package, Download, QrCode } from 'lucide-react'
 import { useState } from 'react'
 
 interface ProductListProps {
   products: Product[]
   onEdit: (product: Product) => void
-  onDelete: (productId: string) => Promise<void>
+  onDelete: (productId: string) => void
+}
+
+function downloadQR(qrDataUrl: string, productCode: string) {
+  const a = document.createElement('a')
+  a.href = qrDataUrl
+  a.download = `qr-${productCode}.png`
+  a.click()
 }
 
 export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
   const [deleting, setDeleting] = useState<string | null>(null)
-
-  const handleDelete = async (productId: string) => {
-    if (
-      window.confirm(
-        'Are you sure you want to delete this product? This action cannot be undone.'
-      )
-    ) {
-      setDeleting(productId)
-      try {
-        await onDelete(productId)
-      } finally {
-        setDeleting(null)
-      }
-    }
-  }
 
   if (products.length === 0) {
     return (
@@ -61,7 +53,7 @@ export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
           >
             <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex gap-4">
-                {/* Thumbnail: show first sub-item image or placeholder */}
+                {/* Thumbnail */}
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-secondary">
                   {subItems[0]?.image_url ? (
                     <Image
@@ -91,7 +83,26 @@ export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                {/* QR code thumbnail + download */}
+                {product.qr_code_url && (
+                  <button
+                    onClick={() => downloadQR(product.qr_code_url!, product.code)}
+                    title="Download QR code"
+                    className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm hover:border-[#1a2d5a] transition-colors"
+                  >
+                    <img
+                      src={product.qr_code_url}
+                      alt="QR code"
+                      className="h-full w-full object-contain p-0.5"
+                    />
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#1a2d5a]/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                      <Download className="h-4 w-4 text-white" />
+                    </div>
+                  </button>
+                )}
+
                 <Link href={`/p/${product.code}`}>
                   <Button
                     variant="outline"
@@ -115,9 +126,24 @@ export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleDelete(product.id)}
+                      onClick={() => onDelete(product.id)}
                       disabled={deleting === product.id}
                       className="text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </Card>
+        )
+      })}
+    </div>
+  )
+}
+
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       {deleting === product.id ? 'Deleting…' : 'Delete'}
