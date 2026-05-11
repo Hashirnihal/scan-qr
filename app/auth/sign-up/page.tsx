@@ -44,7 +44,16 @@ export default function SignUpPage() {
       if (error) throw error
       router.push('/auth/sign-up-success')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      const msg = error instanceof Error ? error.message : 'An error occurred'
+      if (msg.toLowerCase().includes('email rate limit') || msg.toLowerCase().includes('rate limit')) {
+        setError('Too many sign-up attempts. Please wait a few minutes and try again.')
+      } else if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already been registered')) {
+        setError('An account with this email already exists. Please sign in instead.')
+      } else if (msg.toLowerCase().includes('invalid email')) {
+        setError('Please enter a valid email address.')
+      } else {
+        setError(msg)
+      }
     } finally {
       setIsLoading(false)
     }
