@@ -5,12 +5,12 @@ import { getEmailByUsername } from '@/app/actions/auth'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { QrCode, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { OWNER_EMAIL } from '@/lib/constants'
 
-export default function Page() {
+function LoginForm() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -56,6 +56,70 @@ export default function Page() {
   }
 
   return (
+    <div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-md">
+      <form onSubmit={handleLogin} className="space-y-5">
+        <div className="space-y-1">
+          <Label htmlFor="username" className="text-sm font-medium text-foreground">
+            Email
+          </Label>
+          <Input
+            id="username"
+            type="text"
+            placeholder="you@example.com"
+            required
+            value={usernameOrEmail}
+            onChange={(e) => setUsernameOrEmail(e.target.value)}
+            className="bg-secondary/40"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-secondary/40"
+          />
+        </div>
+
+        {justRegistered && !error && (
+          <p className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
+            Account created! Sign in below.
+          </p>
+        )}
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full rounded-lg bg-[#1a2d5a] py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+        >
+          {isLoading ? 'Signing in…' : 'Sign In'}
+        </button>
+      </form>
+
+      <p className="mt-5 text-center text-sm text-muted-foreground">
+        New to HashScan?{' '}
+        <a href="/auth/sign-up" className="font-semibold text-[#1a2d5a] hover:underline">
+          Create an account
+        </a>
+      </p>
+    </div>
+  )
+}
+
+export default function Page() {
+  return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f4f6fb]">
       <div className="w-full max-w-sm">
         {/* Back link */}
@@ -78,66 +142,9 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-md">
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-1">
-              <Label htmlFor="username" className="text-sm font-medium text-foreground">
-                Email
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="you@example.com"
-                required
-                value={usernameOrEmail}
-                onChange={(e) => setUsernameOrEmail(e.target.value)}
-                className="bg-secondary/40"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-secondary/40"
-              />
-            </div>
-
-            {justRegistered && !error && (
-              <p className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
-                Account created! Sign in below.
-              </p>
-            )}
-
-            {error && (
-              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-lg bg-[#1a2d5a] py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            >
-              {isLoading ? 'Signing in…' : 'Sign In'}
-            </button>
-          </form>
-
-          <p className="mt-5 text-center text-sm text-muted-foreground">
-            New to HashScan?{' '}
-            <a href="/auth/sign-up" className="font-semibold text-[#1a2d5a] hover:underline">
-              Create an account
-            </a>
-          </p>
-        </div>
+        <Suspense fallback={<div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-md h-64" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
