@@ -95,8 +95,6 @@ export async function createProduct(input: CreateProductInput): Promise<{ produc
     const productUrl = `${baseUrl}/p/${input.code}`
     const qrCodeUrl = await QRCode.toDataURL(productUrl, {
       errorCorrectionLevel: 'H',
-      type: 'image/png',
-      quality: 0.95,
       margin: 1,
       width: 300,
     })
@@ -141,8 +139,6 @@ export async function regenerateProductQR(productId: string, productCode: string
   const productUrl = `${baseUrl}/p/${productCode}`
   const qrCodeUrl = await QRCode.toDataURL(productUrl, {
     errorCorrectionLevel: 'H',
-    type: 'image/png',
-    quality: 0.95,
     margin: 1,
     width: 300,
   })
@@ -194,30 +190,28 @@ export async function updateProduct(
   }
 }
 
-export async function deleteProduct(productId: string) {
+export async function deleteProduct(productId: string): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const service = createServiceClient()
 
-  // Get current user
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser()
 
-  if (authError || !user) {
-    throw new Error('Unauthorized')
-  }
+  if (authError || !user) return { error: 'Unauthorized' }
 
-  // Soft delete by archiving (RLS ensures user can only delete their own)
-  const { error: deleteError } = await supabase
+  // Use service client to bypass RLS, but restrict to the user's own products
+  const { error: deleteError } = await service
     .from('products')
-    .update({ archived: true })
+    .update({ archived: true, updated_at: new Date().toISOString() })
     .eq('id', productId)
+    .eq('created_by', user.id)
 
-  if (deleteError) {
-    throw new Error(`Failed to delete product: ${deleteError.message}`)
-  }
+  if (deleteError) return { error: `Failed to delete product: ${deleteError.message}` }
 
   revalidatePath('/portal')
+  return {}
 }
 
 export async function getProduct(code: string) {

@@ -28,6 +28,7 @@ export default function PortalPage() {
     productId: '',
     productName: '',
   })
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -81,9 +82,14 @@ export default function PortalPage() {
   }
 
   const confirmDelete = async () => {
-    await deleteProduct(confirm.productId)
+    setDeleteError(null)
+    const result = await deleteProduct(confirm.productId)
     setConfirm({ open: false, productId: '', productName: '' })
-    await handleProductCreated()
+    if (result.error) {
+      setDeleteError(result.error)
+    } else {
+      await handleProductCreated()
+    }
   }
 
   if (loading) {
@@ -160,6 +166,11 @@ export default function PortalPage() {
 
           {/* Products Section */}
           <div>
+            {deleteError && (
+              <div className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {deleteError}
+              </div>
+            )}
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#1a2d5a]">
                 Products{' '}
