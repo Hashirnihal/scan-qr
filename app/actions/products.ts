@@ -88,6 +88,7 @@ export async function createProduct(input: CreateProductInput): Promise<{ produc
     // Generate QR code
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://hashscan-psi.vercel.app')
     const productUrl = `${baseUrl}/p/${input.code}`
     const qrCodeUrl = await QRCode.toDataURL(productUrl, {
@@ -133,6 +134,7 @@ export async function regenerateProductQR(productId: string, productCode: string
 
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://hashscan-psi.vercel.app')
   const productUrl = `${baseUrl}/p/${productCode}`
   const qrCodeUrl = await QRCode.toDataURL(productUrl, {
