@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProduct, SubItem } from '@/app/actions/products'
-import { Download, QrCode, Sparkles } from 'lucide-react'
+import { QrCode, Sparkles } from 'lucide-react'
 
 interface ProductPageProps {
   params: Promise<{ product_code: string }>
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {product.name}
           </h1>
           <p className="animate-fade-up-delay-2 mt-4 text-base text-blue-300/80 sm:text-lg">
-            Scan the QR code below or explore product details
+            Explore the products below
           </p>
         </div>
 
@@ -164,43 +164,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         )}
 
-        {/* QR Code Card */}
-        {product.qr_code_url && (
-          <div className="animate-scale-in mx-auto max-w-xs">
-            <div className="animate-pulse-glow rounded-3xl border border-blue-200 bg-white p-8 text-center shadow-xl">
-              <div className="mb-1 flex items-center justify-center gap-2">
-                <QrCode className="h-4 w-4 text-[#1a2d5a]" />
-                <h3 className="text-base font-bold text-[#1a2d5a]">QR Code</h3>
-              </div>
-              <p className="mb-5 text-xs text-gray-400">Scan to share this product page</p>
 
-              <div className="animate-float mx-auto mb-5 flex h-48 w-48 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 p-2 ring-2 ring-blue-200/60">
-                <Image
-                  src={product.qr_code_url}
-                  alt="Product QR Code"
-                  width={176}
-                  height={176}
-                  className="object-contain"
-                />
-              </div>
-
-              <a href={product.qr_code_url} download={`${product.code}-qr.png`}>
-                <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1a2d5a] to-[#2a4a8a] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-[1.03] hover:shadow-lg active:scale-[0.98]">
-                  <Download className="h-4 w-4" />
-                  Download QR Code
-                </button>
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* Product code note */}
-        <p className="mt-10 text-center text-xs text-gray-400">
-          Product Code:{' '}
-          <span className="rounded bg-blue-50 px-2 py-0.5 font-mono text-[#1a2d5a]">
-            {product.code}
-          </span>
-        </p>
       </div>
 
       {/* â”€â”€ Footer â”€â”€ */}
