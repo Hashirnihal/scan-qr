@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+﻿import { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProduct, SubItem } from '@/app/actions/products'
@@ -40,7 +40,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <main className="min-h-screen bg-[#f0f4ff] overflow-x-hidden">
 
-      {/* ── Navbar ── */}
+      {/* â”€â”€ Navbar â”€â”€ */}
       <header className="sticky top-0 z-50 bg-[#1a2d5a]/95 backdrop-blur-md border-b border-white/10 shadow-lg animate-fade-in">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
           <div className="flex items-center gap-2.5">
@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </header>
 
-      {/* ── Hero ── */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <div className="relative bg-[#1a2d5a] pb-24 pt-16 overflow-hidden">
         {/* Decorative orbs */}
         <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
@@ -88,7 +88,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      {/* ── Main Content ── */}
+      {/* â”€â”€ Main Content â”€â”€ */}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
 
         {/* Products Grid */}
@@ -203,7 +203,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </p>
       </div>
 
-      {/* ── Footer ── */}
+      {/* â”€â”€ Footer â”€â”€ */}
       <footer className="mt-16 border-t border-blue-900/20 bg-[#1a2d5a] py-8 text-center">
         <div className="flex items-center justify-center gap-2 mb-1">
           <QrCode className="h-4 w-4 text-blue-300" />
@@ -214,30 +214,3 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </main>
   )
 }
-
-
-interface ProductPageProps {
-  params: Promise<{ product_code: string }>
-}
-
-export async function generateMetadata(
-  { params }: ProductPageProps
-): Promise<Metadata> {
-  const { product_code } = await params
-  const product = await getProduct(product_code)
-
-  if (!product) {
-    return { title: 'Product Not Found' }
-  }
-
-  return {
-    title: product.name,
-    description: `Scan to view ${product.name} product details`,
-    openGraph: {
-      title: product.name,
-      description: `Scan to view ${product.name} product details`,
-      type: 'website',
-    },
-  }
-}
-
