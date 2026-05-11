@@ -262,6 +262,7 @@ export async function getAdminProducts() {
     .from('products')
     .select('*')
     .eq('created_by', user.id)
+    .eq('archived', false)
     .order('created_at', { ascending: false })
 
   if (error) {
