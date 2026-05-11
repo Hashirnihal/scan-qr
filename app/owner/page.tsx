@@ -7,6 +7,7 @@ import {
   getAllUsersWithProducts,
   ownerDeleteProduct,
   ownerUpdateProduct,
+  ownerDeleteUser,
 } from '@/app/actions/owner'
 import { OWNER_EMAIL } from '@/lib/constants'
 import type { UserRecord } from '@/lib/constants'
@@ -24,11 +25,13 @@ import {
   ShieldCheck,
   X,
   Save,
+  UserX,
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { TemplatePicker } from '@/app/components/TemplatePicker'
 import type { TemplateId } from '@/lib/templates'
+import { ConfirmDialog } from '@/app/components/ConfirmDialog'
 
 /* ── inline edit modal ── */
 interface EditModalProps {
@@ -166,11 +169,13 @@ function EditModal({ product, onClose, onSaved }: EditModalProps) {
 function UserCard({
   record,
   onEdit,
-  onDelete,
+  onDeleteProduct,
+  onDeleteUser,
 }: {
   record: UserRecord
   onEdit: (p: Product) => void
-  onDelete: (p: Product) => void
+  onDeleteProduct: (p: Product) => void
+  onDeleteUser: (r: UserRecord) => void
 }) {
   const [open, setOpen] = useState(false)
 
@@ -193,11 +198,20 @@ function UserCard({
             </p>
           </div>
         </div>
-        {open ? (
-          <ChevronDown className="h-4 w-4 text-gray-400" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-gray-400" />
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onDeleteUser(record) }}
+            className="flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-100"
+          >
+            <UserX className="h-3.5 w-3.5" />
+            Delete User
+          </button>
+          {open ? (
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          )}
+        </div>
       </button>
 
       {/* Products */}
@@ -242,7 +256,7 @@ function UserCard({
                     Edit
                   </button>
                   <button
-                    onClick={() => onDelete(product)}
+                    onClick={() => onDeleteProduct(product)}
                     className="flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-100"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -265,6 +279,17 @@ export default function OwnerPage() {
   const [users, setUsers] = useState<UserRecord[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Confirm dialog state
+  const [confirm, setConfirm] = useState<{
+    open: boolean
+    title: string
+    message: string
+    confirmLabel: string
+    onConfirm: () => void
+  }>({ open: false, title: '', message: '', confirmLabel: 'Delete', onConfirm: () => {} })
+
+  const closeConfirm = () => setConfirm((c) => ({ ...c, open: false }))
 
   const load = async () => {
     try {
@@ -296,14 +321,40 @@ export default function OwnerPage() {
     router.push('/')
   }
 
-  const handleDelete = async (product: Product) => {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return
-    try {
-      await ownerDeleteProduct(product.id)
-      await load()
-    } catch (e) {
-      alert(e instanceof Error ? e.message : 'Delete failed')
-    }
+  const handleDeleteProduct = (product: Product) => {
+    setConfirm({
+      open: true,
+      title: 'Delete Product',
+      message: `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+      confirmLabel: 'Delete Product',
+      onConfirm: async () => {
+        closeConfirm()
+        try {
+          await ownerDeleteProduct(product.id)
+          await load()
+        } catch (e) {
+          setError(e instanceof Error ? e.message : 'Delete failed')
+        }
+      },
+    })
+  }
+
+  const handleDeleteUser = (record: UserRecord) => {
+    setConfirm({
+      open: true,
+      title: 'Delete User',
+      message: `Are you sure you want to delete the user "${record.email}"? All their products will also be removed. This cannot be undone.`,
+      confirmLabel: 'Delete User',
+      onConfirm: async () => {
+        closeConfirm()
+        try {
+          await ownerDeleteUser(record.id)
+          await load()
+        } catch (e) {
+          setError(e instanceof Error ? e.message : 'Delete failed')
+        }
+      },
+    })
   }
 
   const totalProducts = users.reduce((s, u) => s + u.products.length, 0)
@@ -335,6 +386,16 @@ export default function OwnerPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f6fb]">
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirm.open}
+        title={confirm.title}
+        message={confirm.message}
+        confirmLabel={confirm.confirmLabel}
+        onConfirm={confirm.onConfirm}
+        onCancel={closeConfirm}
+      />
+
       {/* Edit Modal */}
       {editingProduct && (
         <EditModal
@@ -409,7 +470,8 @@ export default function OwnerPage() {
               key={record.id}
               record={record}
               onEdit={setEditingProduct}
-              onDelete={handleDelete}
+              onDeleteProduct={handleDeleteProduct}
+              onDeleteUser={handleDeleteUser}
             />
           ))}
         </div>

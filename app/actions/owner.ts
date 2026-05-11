@@ -80,3 +80,20 @@ export async function ownerDeleteProduct(productId: string) {
   if (error) throw new Error(error.message)
   revalidateTag('products')
 }
+
+/** Owner can permanently delete a user (and their products). */
+export async function ownerDeleteUser(userId: string) {
+  await assertOwner()
+  const service = createServiceClient()
+
+  // Archive all their products first
+  await service
+    .from('products')
+    .update({ archived: true, updated_at: new Date().toISOString() })
+    .eq('created_by', userId)
+
+  // Delete the auth user
+  const { error } = await service.auth.admin.deleteUser(userId)
+  if (error) throw new Error(error.message)
+  revalidateTag('products')
+}

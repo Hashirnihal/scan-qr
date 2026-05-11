@@ -14,6 +14,7 @@ import { ProductForm } from '@/app/components/ProductForm'
 import { LogOut, Plus, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { OWNER_EMAIL } from '@/lib/constants'
+import { ConfirmDialog } from '@/app/components/ConfirmDialog'
 
 export default function PortalPage() {
   const router = useRouter()
@@ -22,6 +23,11 @@ export default function PortalPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [confirm, setConfirm] = useState<{ open: boolean; productId: string; productName: string }>({
+    open: false,
+    productId: '',
+    productName: '',
+  })
 
   useEffect(() => {
     const loadData = async () => {
@@ -70,7 +76,13 @@ export default function PortalPage() {
   }
 
   const handleDeleteProduct = async (productId: string) => {
-    await deleteProduct(productId)
+    const product = products.find((p) => p.id === productId)
+    setConfirm({ open: true, productId, productName: product?.name ?? 'this product' })
+  }
+
+  const confirmDelete = async () => {
+    await deleteProduct(confirm.productId)
+    setConfirm({ open: false, productId: '', productName: '' })
     await handleProductCreated()
   }
 
@@ -180,6 +192,15 @@ export default function PortalPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${confirm.productName}"? This cannot be undone.`}
+        confirmLabel="Delete Product"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, productId: '', productName: '' })}
+      />
     </main>
   )
 }
