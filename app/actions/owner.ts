@@ -20,8 +20,12 @@ async function assertOwner() {
 }
 
 /** Return every user + their products. Owner-only. */
-export async function getAllUsersWithProducts(): Promise<UserRecord[]> {
-  await assertOwner()
+export async function getAllUsersWithProducts(): Promise<{ data?: UserRecord[]; error?: string }> {
+  try {
+    await assertOwner()
+  } catch {
+    return { error: 'Unauthorized' }
+  }
 
   const service = createServiceClient()
 
@@ -31,18 +35,20 @@ export async function getAllUsersWithProducts(): Promise<UserRecord[]> {
     .select('*')
     .eq('archived', false)
     .order('created_at', { ascending: false })
-  if (prodErr) throw new Error(prodErr.message)
+  if (prodErr) return { error: prodErr.message }
 
   // Fetch all auth users (service role only)
   const { data: usersData, error: userErr } = await service.auth.admin.listUsers()
-  if (userErr) throw new Error(userErr.message)
+  if (userErr) return { error: userErr.message }
 
-  return usersData.users.map((u) => ({
-    id: u.id,
-    email: u.email ?? 'unknown',
-    created_at: u.created_at,
-    products: (products ?? []).filter((p) => p.created_by === u.id) as Product[],
-  }))
+  return {
+    data: usersData.users.map((u) => ({
+      id: u.id,
+      email: u.email ?? 'unknown',
+      created_at: u.created_at,
+      products: (products ?? []).filter((p) => p.created_by === u.id) as Product[],
+    }))
+  }
 }
 
 /** Owner can update any product (bypasses RLS). */
@@ -70,20 +76,21 @@ export async function ownerUpdateProduct(
 }
 
 /** Owner can delete (archive) any product. */
-export async function ownerDeleteProduct(productId: string) {
-  await assertOwner()
+export async function ownerDeleteProduct(productId: string): Promise<{ error?: string }> {
+  try { await assertOwner() } catch { return { error: 'Unauthorized' } }
   const service = createServiceClient()
   const { error } = await service
     .from('products')
     .update({ archived: true, updated_at: new Date().toISOString() })
     .eq('id', productId)
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidateTag('products')
+  return {}
 }
 
 /** Owner can permanently delete a user (and their products). */
-export async function ownerDeleteUser(userId: string) {
-  await assertOwner()
+export async function ownerDeleteUser(userId: string): Promise<{ error?: string }> {
+  try { await assertOwner() } catch { return { error: 'Unauthorized' } }
   const service = createServiceClient()
 
   // Archive all their products first
@@ -94,6 +101,7 @@ export async function ownerDeleteUser(userId: string) {
 
   // Delete the auth user
   const { error } = await service.auth.admin.deleteUser(userId)
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidateTag('products')
+  return {}
 }

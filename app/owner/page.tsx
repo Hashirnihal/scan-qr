@@ -293,8 +293,12 @@ export default function OwnerPage() {
 
   const load = async () => {
     try {
-      const data = await getAllUsersWithProducts()
-      setUsers(data)
+      const result = await getAllUsersWithProducts()
+      if (result.error) {
+        setError(result.error)
+      } else {
+        setUsers(result.data ?? [])
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load data')
     } finally {
@@ -330,8 +334,12 @@ export default function OwnerPage() {
       onConfirm: async () => {
         closeConfirm()
         try {
-          await ownerDeleteProduct(product.id)
-          await load()
+          const result = await ownerDeleteProduct(product.id)
+          if (result?.error) {
+            setError(result.error)
+          } else {
+            await load()
+          }
         } catch (e) {
           setError(e instanceof Error ? e.message : 'Delete failed')
         }
@@ -348,8 +356,12 @@ export default function OwnerPage() {
       onConfirm: async () => {
         closeConfirm()
         try {
-          await ownerDeleteUser(record.id)
-          await load()
+          const result = await ownerDeleteUser(record.id)
+          if (result?.error) {
+            setError(result.error)
+          } else {
+            await load()
+          }
         } catch (e) {
           setError(e instanceof Error ? e.message : 'Delete failed')
         }
