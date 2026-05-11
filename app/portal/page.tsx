@@ -11,8 +11,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { ProductList } from '@/app/components/ProductList'
 import { ProductForm } from '@/app/components/ProductForm'
-import { LogOut, Plus } from 'lucide-react'
+import { LogOut, Plus, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
+import { OWNER_EMAIL } from '@/lib/constants'
 
 export default function PortalPage() {
   const router = useRouter()
@@ -95,6 +96,14 @@ export default function PortalPage() {
             </div>
           </div>
           <div className="flex gap-3">
+            {user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase() && (
+              <Link href="/owner">
+                <button className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20">
+                  <ShieldCheck className="h-4 w-4 text-blue-300" />
+                  Owner Panel
+                </button>
+              </Link>
+            )}
             <Link href="/">
               <button className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10">
                 View Site
