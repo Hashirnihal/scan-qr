@@ -27,7 +27,7 @@ export default function PortalPage() {
       try {
         const supabase = createClient()
 
-        // Check authentication
+        // Check authentication — any logged-in user gets their own dashboard
         const {
           data: { user: authUser },
         } = await supabase.auth.getUser()
@@ -36,21 +36,9 @@ export default function PortalPage() {
           return
         }
 
-        // Check if admin
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', authUser.id)
-          .single()
-
-        if (!profile?.is_admin) {
-          router.push('/')
-          return
-        }
-
         setUser(authUser)
 
-        // Load products
+        // Load only this user's products
         const prods = await getAdminProducts()
         setProducts(prods)
       } finally {

@@ -18,7 +18,7 @@ export default function Home() {
             href="/auth/login"
             className="flex items-center gap-2 rounded-xl bg-white/10 border border-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur hover:bg-white/20 transition-all duration-200"
           >
-            Admin Login
+            Sign In
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

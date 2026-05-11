@@ -85,17 +85,6 @@ export async function createProduct(input: CreateProductInput) {
     throw new Error('Unauthorized')
   }
 
-  // Check if user is admin
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile?.is_admin) {
-    throw new Error('Only admins can create products')
-  }
-
   // Generate QR code URL — prefer explicit APP_URL, fall back to VERCEL_URL (set automatically by Vercel)
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
@@ -179,18 +168,7 @@ export async function updateProduct(
     throw new Error('Unauthorized')
   }
 
-  // Check if user is admin
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile?.is_admin) {
-    throw new Error('Only admins can update products')
-  }
-
-  // Update product
+  // Update product (RLS ensures user can only update their own)
   const { data: product, error: updateError } = await supabase
     .from('products')
     .update({
@@ -225,18 +203,7 @@ export async function deleteProduct(productId: string) {
     throw new Error('Unauthorized')
   }
 
-  // Check if user is admin
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile?.is_admin) {
-    throw new Error('Only admins can delete products')
-  }
-
-  // Soft delete by archiving
+  // Soft delete by archiving (RLS ensures user can only delete their own)
   const { error: deleteError } = await supabase
     .from('products')
     .update({ archived: true })

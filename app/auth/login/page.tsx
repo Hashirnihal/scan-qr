@@ -53,9 +53,9 @@ export default function Page() {
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a2d5a]">
             <QrCode className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-[#1a2d5a]">Admin Login</h1>
+          <h1 className="text-2xl font-bold text-[#1a2d5a]">Sign In</h1>
           <p className="text-sm text-muted-foreground">
-            Sign in to manage your products
+            Sign in to manage your products &amp; QR codes
           </p>
         </div>
 
@@ -64,12 +64,12 @@ export default function Page() {
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-1">
               <Label htmlFor="username" className="text-sm font-medium text-foreground">
-                Username or Email
+                Email
               </Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="digitalInn"
+                placeholder="you@example.com"
                 required
                 value={usernameOrEmail}
                 onChange={(e) => setUsernameOrEmail(e.target.value)}
@@ -105,6 +105,13 @@ export default function Page() {
               {isLoading ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
+
+          <p className="mt-5 text-center text-sm text-muted-foreground">
+            New to HashScan?{' '}
+            <a href="/auth/sign-up" className="font-semibold text-[#1a2d5a] hover:underline">
+              Create an account
+            </a>
+          </p>
         </div>
       </div>
     </div>
