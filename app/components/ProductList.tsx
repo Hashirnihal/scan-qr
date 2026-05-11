@@ -143,18 +143,3 @@ export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
     </div>
   )
 }
-
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {deleting === product.id ? 'Deleting…' : 'Delete'}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </Card>
-        )
-      })}
-    </div>
-  )
-}
