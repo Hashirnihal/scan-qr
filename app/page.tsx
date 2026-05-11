@@ -45,7 +45,7 @@ export default function Home() {
           </h1>
 
           <p className="animate-fade-up-delay-2 mx-auto mt-6 max-w-2xl text-lg text-blue-200/80 sm:text-xl">
-            Create QR codes that link to beautiful product pages. Let customers discover your products instantly â€” no app needed.
+            Create QR codes that link to beautiful product pages. Let customers discover your products instantly, no app needed.
           </p>
 
           <div className="animate-fade-up-delay-3 mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -61,9 +61,9 @@ export default function Home() {
           {/* Stats row */}
           <div className="animate-fade-up-delay-4 mt-14 flex flex-wrap items-center justify-center gap-8 text-center">
             {[
-              { value: '1-click', label: 'QR Generation' },
-              { value: 'Live', label: 'Product Pages' },
-              { value: '0', label: 'Login for Customers' },
+              { value: 'Free', label: 'No App Needed' },
+              { value: 'Live', label: 'Instant Product Pages' },
+              { value: '5', label: 'Page Templates' },
             ].map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-0.5">
                 <span className="text-2xl font-extrabold text-white">{s.value}</span>

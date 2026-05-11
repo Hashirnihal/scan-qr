@@ -1,6 +1,6 @@
 'use client'
 
-import { Product, SubItem } from '@/app/actions/products'
+import { Product, SubItem, regenerateProductQR } from '@/app/actions/products'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Edit2, MoreVertical, Trash2, Eye, Package, Download, QrCode } from 'lucide-react'
+import { Edit2, MoreVertical, Trash2, Eye, Package, Download, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
 interface ProductListProps {
@@ -29,6 +29,18 @@ function downloadQR(qrDataUrl: string, productCode: string) {
 
 export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [regenerating, setRegenerating] = useState<string | null>(null)
+
+  const handleRegenerate = async (product: Product) => {
+    setRegenerating(product.id)
+    try {
+      const newQr = await regenerateProductQR(product.id, product.code)
+      // Update the QR in-place without a full reload
+      product.qr_code_url = newQr
+    } finally {
+      setRegenerating(null)
+    }
+  }
 
   if (products.length === 0) {
     return (
@@ -124,6 +136,13 @@ export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
                     <DropdownMenuItem onClick={() => onEdit(product)}>
                       <Edit2 className="mr-2 h-4 w-4" />
                       Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleRegenerate(product)}
+                      disabled={regenerating === product.id}
+                    >
+                      <RefreshCw className={`mr-2 h-4 w-4 ${regenerating === product.id ? 'animate-spin' : ''}`} />
+                      {regenerating === product.id ? 'Regenerating…' : 'Regenerate QR'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDelete(product.id)}
