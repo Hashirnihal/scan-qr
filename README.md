@@ -56,10 +56,10 @@ A modern QR code-based product information system built with Next.js, Supabase, 
 4. **Login**: Sign in at `/auth/login`
 5. **Admin Access**: Only users with `is_admin=true` can access `/portal`
 
-## Deployment
+## Deployment Steps (PowerShell)
 
- 1. $env:NODE_TLS_REJECT_UNAUTHORIZED="0"
- 2. vercel --yes --prod
+1. $env:NODE_TLS_REJECT_UNAUTHORIZED="0"
+2. vercel --yes --prod
 
 ## Workflow
 
