@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { QrCode, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { OWNER_EMAIL } from '@/lib/constants'
 
 export default function Page() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
@@ -38,7 +39,13 @@ export default function Page() {
         password,
       })
       if (signInError) throw signInError
-      router.push('/portal')
+      // Owner goes to owner panel, everyone else to regular dashboard
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email?.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
+        router.push('/owner')
+      } else {
+        router.push('/portal')
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {

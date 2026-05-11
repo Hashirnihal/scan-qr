@@ -37,6 +37,12 @@ export default function PortalPage() {
           return
         }
 
+        // Owner goes to their own panel, not the regular dashboard
+        if (authUser.email?.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
+          router.push('/owner')
+          return
+        }
+
         setUser(authUser)
 
         // Load only this user's products
