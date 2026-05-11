@@ -69,7 +69,7 @@ export default function SignUpPage() {
             <CardHeader>
               <CardTitle className="text-2xl">Create Account</CardTitle>
               <CardDescription>
-                Sign up for your ScanQR admin account
+                Sign up for your HashScan admin account
               </CardDescription>
             </CardHeader>
             <CardContent>

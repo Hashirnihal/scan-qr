@@ -9,7 +9,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
             <QrCode className="h-7 w-7 text-white" />
-            <span className="text-xl font-bold text-white">ScanQR</span>
+            <span className="text-xl font-bold text-white">HashScan</span>
           </div>
           <Link
             href="/auth/login"
@@ -46,7 +46,7 @@ export default function Home() {
       {/* Features */}
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <h2 className="mb-10 text-center text-2xl font-bold text-[#1a2d5a]">
-          Why Choose ScanQR?
+          Why Choose HashScan?
         </h2>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
@@ -97,7 +97,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-[#1a2d5a] py-6 text-center text-xs text-blue-200">
-        ScanQR &mdash; Powered by Innovation
+        HashScan &mdash; Powered by Innovation
       </footer>
     </main>
   )

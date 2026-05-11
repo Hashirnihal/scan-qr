@@ -30,7 +30,7 @@ export default function SignUpSuccessPage() {
               <div className="space-y-4">
                 <p className="text-center text-sm text-muted-foreground">
                   We&apos;ve sent a confirmation link to your email. Click it to
-                  verify your account and start using ScanQR.
+                  verify your account and start using HashScan.
                 </p>
                 <div className="flex flex-col gap-3">
                   <Link href="/">

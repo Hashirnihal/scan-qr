@@ -7,10 +7,10 @@ const geist = Geist({ subsets: ["latin"], variable: '--font-geist-sans' })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: '--font-geist-mono' })
 
 export const metadata: Metadata = {
-  title: 'Scan QR - Product Information',
+  title: 'HashScan - Product Information',
   description: 'Scan QR codes to access detailed product information instantly',
   openGraph: {
-    title: 'Scan QR - Product Information',
+    title: 'HashScan - Product Information',
     description: 'Scan QR codes to access detailed product information instantly',
     type: 'website',
   },

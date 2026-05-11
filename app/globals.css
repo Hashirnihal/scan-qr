@@ -125,3 +125,68 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── HashScan public page animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(59,130,246,0.25); }
+  50%       { box-shadow: 0 0 36px 8px rgba(59,130,246,0.45); }
+}
+@keyframes wave {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-fade-up          { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-fade-up-delay-1  { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) 0.15s both; }
+.animate-fade-up-delay-2  { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) 0.30s both; }
+.animate-fade-up-delay-3  { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) 0.45s both; }
+.animate-fade-up-delay-4  { animation: fadeUp 0.7s cubic-bezier(.22,.68,0,1.2) 0.60s both; }
+.animate-fade-in          { animation: fadeIn 1s ease both; }
+.animate-scale-in         { animation: scaleIn 0.6s cubic-bezier(.22,.68,0,1.2) 0.3s both; }
+.animate-float            { animation: float 4s ease-in-out infinite; }
+.animate-pulse-glow       { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+.shimmer-text {
+  background: linear-gradient(90deg, #fff 0%, #93c5fd 40%, #fff 60%, #93c5fd 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+.card-hover {
+  transition: transform 0.3s cubic-bezier(.22,.68,0,1.2), box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 48px -8px rgba(26,45,90,0.22);
+}
+
+.img-zoom img {
+  transition: transform 0.5s cubic-bezier(.22,.68,0,1.2);
+}
+.img-zoom:hover img {
+  transform: scale(1.07);
+}
+
