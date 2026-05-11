@@ -41,36 +41,38 @@ export interface CreateProductInput {
 export async function uploadProductImage(
   base64DataUrl: string,
   fileName: string
-): Promise<string> {
-  const supabase = await createClient()
+): Promise<{ url?: string; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const service = createServiceClient()
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) throw new Error('Unauthorized')
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return { error: 'Unauthorized' }
 
-  // Strip "data:image/...;base64," prefix
-  const matches = base64DataUrl.match(/^data:(.+);base64,(.+)$/)
-  if (!matches) throw new Error('Invalid image data')
-  const mimeType = matches[1]
-  const base64Data = matches[2]
-  const buffer = Buffer.from(base64Data, 'base64')
+    const matches = base64DataUrl.match(/^data:(.+);base64,(.+)$/)
+    if (!matches) return { error: 'Invalid image data' }
+    const mimeType = matches[1]
+    const base64Data = matches[2]
+    const buffer = Buffer.from(base64Data, 'base64')
 
-  const ext = mimeType.split('/')[1] || 'png'
-  const path = `${user.id}/${Date.now()}-${fileName}.${ext}`
+    const ext = mimeType.split('/')[1] || 'png'
+    const path = `${user.id}/${Date.now()}-${fileName}.${ext}`
 
-  const { error: uploadError } = await supabase.storage
-    .from('product-images')
-    .upload(path, buffer, { contentType: mimeType, upsert: true })
+    // Use service client for storage upload to bypass RLS
+    const { error: uploadError } = await service.storage
+      .from('product-images')
+      .upload(path, buffer, { contentType: mimeType, upsert: true })
 
-  if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`)
+    if (uploadError) return { error: `Image upload failed: ${uploadError.message}` }
 
-  const { data: urlData } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(path)
+    const { data: urlData } = service.storage
+      .from('product-images')
+      .getPublicUrl(path)
 
-  return urlData.publicUrl
+    return { url: urlData.publicUrl }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Upload failed' }
+  }
 }
 
 export async function createProduct(input: CreateProductInput): Promise<{ product?: Product; error?: string }> {

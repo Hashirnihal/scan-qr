@@ -95,21 +95,17 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     setError(null)
 
     try {
-      const resolvedItems: SubItem[] = await Promise.all(
-        subItems.map(async (item) => {
-          let imageUrl = item.image_url
-          if (item.pendingFile) {
-            const dataUrl = await readFileAsDataUrl(item.pendingFile)
-            imageUrl = await uploadProductImage(dataUrl, item.name || 'image')
-          }
-          return {
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            image_url: imageUrl,
-          }
-        })
-      )
+      const resolvedItems: SubItem[] = []
+      for (const item of subItems) {
+        let imageUrl = item.image_url
+        if (item.pendingFile) {
+          const dataUrl = await readFileAsDataUrl(item.pendingFile)
+          const result = await uploadProductImage(dataUrl, item.name || 'image')
+          if (result.error) { setError(`Image upload failed: ${result.error}`); setLoading(false); return }
+          imageUrl = result.url
+        }
+        resolvedItems.push({ id: item.id, name: item.name, description: item.description, image_url: imageUrl })
+      }
 
       const payload = {
         code: code.trim(),
