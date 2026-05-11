@@ -26,3 +26,35 @@ export async function getEmailByUsername(username: string): Promise<string | nul
     return null
   }
 }
+
+/**
+ * Create a user account without sending a confirmation email.
+ * Used as a fallback when the Supabase email rate limit is exceeded.
+ * Sets email_confirm: true so the user can log in immediately.
+ */
+export async function signUpBypassEmail(
+  email: string,
+  password: string,
+): Promise<{ error?: string }> {
+  try {
+    const admin = createAdminClient()
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    })
+    if (error) {
+      if (
+        error.message.toLowerCase().includes('already registered') ||
+        error.message.toLowerCase().includes('already been registered') ||
+        error.message.toLowerCase().includes('already exists')
+      ) {
+        return { error: 'already_exists' }
+      }
+      return { error: error.message }
+    }
+    return {}
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'An error occurred' }
+  }
+}

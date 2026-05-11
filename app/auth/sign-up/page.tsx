@@ -1,19 +1,19 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
+import { signUpBypassEmail } from '@/app/actions/auth'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { QrCode, ArrowLeft, MailCheck } from 'lucide-react'
+import { QrCode, ArrowLeft } from 'lucide-react'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [rateLimited, setRateLimited] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -47,7 +47,22 @@ export default function SignUpPage() {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'An error occurred'
       if (msg.toLowerCase().includes('email rate limit') || msg.toLowerCase().includes('rate limit')) {
-        setRateLimited(true)
+        // Email rate limit hit — create account silently via admin API (no email sent)
+        const result = await signUpBypassEmail(email, password)
+        if (result.error === 'already_exists') {
+          setError('An account with this email already exists. Please sign in instead.')
+        } else if (result.error) {
+          setError('Unable to create account right now. Please try again later.')
+        } else {
+          // Account created — now sign in automatically
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+          if (signInError) {
+            // Account created but auto-login failed — send to login page
+            router.push('/auth/login?registered=1')
+          } else {
+            router.push('/portal')
+          }
+        }
       } else if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already been registered')) {
         setError('An account with this email already exists. Please sign in instead.')
       } else if (msg.toLowerCase().includes('invalid email')) {
@@ -83,33 +98,6 @@ export default function SignUpPage() {
 
         {/* Card */}
         <div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-md">
-          {rateLimited ? (
-            <div className="flex flex-col items-center gap-4 text-center py-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 border border-amber-200">
-                <MailCheck className="h-7 w-7 text-amber-500" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-[#1a2d5a]">Sign-ups temporarily paused</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Our email limit has been reached. If you already have an account, you can sign in right away.
-                </p>
-              </div>
-              <Link
-                href="/auth/login"
-                className="w-full rounded-lg bg-[#1a2d5a] py-2.5 text-sm font-semibold text-white text-center transition-opacity hover:opacity-90"
-              >
-                Sign in to your account
-              </Link>
-              <button
-                type="button"
-                onClick={() => setRateLimited(false)}
-                className="text-xs text-muted-foreground hover:text-[#1a2d5a] underline underline-offset-2"
-              >
-                Try signing up again
-              </button>
-            </div>
-          ) : (
-          <>
           <form onSubmit={handleSignUp} className="space-y-5">
             <div className="space-y-1">
               <Label htmlFor="email" className="text-sm font-medium">Email</Label>
@@ -167,8 +155,6 @@ export default function SignUpPage() {
               Sign in
             </Link>
           </p>
-          </>
-          )}
         </div>
       </div>
     </div>
