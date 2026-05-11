@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import QRCode from 'qrcode'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -72,53 +73,53 @@ export async function uploadProductImage(
   return urlData.publicUrl
 }
 
-export async function createProduct(input: CreateProductInput) {
-  const supabase = await createClient()
+export async function createProduct(input: CreateProductInput): Promise<{ product?: Product; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const service = createServiceClient()
 
-  // Get current user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
+    // Verify auth
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) return { error: 'Unauthorized' }
 
-  if (authError || !user) {
-    throw new Error('Unauthorized')
-  }
-
-  // Generate QR code URL — prefer explicit APP_URL, fall back to VERCEL_URL (set automatically by Vercel)
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
-  const productUrl = `${baseUrl}/p/${input.code}`
-  const qrCodeUrl = await QRCode.toDataURL(productUrl, {
-    errorCorrectionLevel: 'H',
-    type: 'image/png',
-    quality: 0.95,
-    margin: 1,
-    width: 300,
-  })
-
-  // Create product
-  const { data: product, error: createError } = await supabase
-    .from('products')
-    .insert({
-      code: input.code,
-      name: input.name,
-      description: input.description || null,
-      image_url: input.imageUrl || null,
-      custom_fields: input.customFields || {},
-      qr_code_url: qrCodeUrl,
-      created_by: user.id,
+    // Generate QR code
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ??
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+    const productUrl = `${baseUrl}/p/${input.code}`
+    const qrCodeUrl = await QRCode.toDataURL(productUrl, {
+      errorCorrectionLevel: 'H',
+      type: 'image/png',
+      quality: 0.95,
+      margin: 1,
+      width: 300,
     })
-    .select()
-    .single()
 
-  if (createError) {
-    throw new Error(`Failed to create product: ${createError.message}`)
+    // Insert using service client (bypasses RLS; auth already verified above)
+    const { data: product, error: createError } = await service
+      .from('products')
+      .insert({
+        code: input.code,
+        name: input.name,
+        description: input.description || null,
+        image_url: input.imageUrl || null,
+        custom_fields: input.customFields || {},
+        qr_code_url: qrCodeUrl,
+        created_by: user.id,
+      })
+      .select()
+      .single()
+
+    if (createError) return { error: `Failed to create product: ${createError.message}` }
+
+    revalidateTag('products')
+    return { product: product as Product }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Failed to create product' }
   }
-
-  revalidateTag('products')
-  return product
 }
 
 /**
@@ -155,39 +156,38 @@ export async function regenerateProductQR(productId: string, productCode: string
 export async function updateProduct(
   productId: string,
   input: Partial<CreateProductInput>
-) {
-  const supabase = await createClient()
+): Promise<{ product?: Product; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const service = createServiceClient()
 
-  // Get current user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) return { error: 'Unauthorized' }
 
-  if (authError || !user) {
-    throw new Error('Unauthorized')
+    const { data: product, error: updateError } = await service
+      .from('products')
+      .update({
+        ...(input.name && { name: input.name }),
+        ...(input.description !== undefined && { description: input.description || null }),
+        ...(input.imageUrl !== undefined && { image_url: input.imageUrl || null }),
+        ...(input.customFields !== undefined && { custom_fields: input.customFields }),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', productId)
+      .eq('created_by', user.id)   // enforce ownership even with service client
+      .select()
+      .single()
+
+    if (updateError) return { error: `Failed to update product: ${updateError.message}` }
+
+    revalidateTag('products')
+    return { product: product as Product }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Failed to update product' }
   }
-
-  // Update product (RLS ensures user can only update their own)
-  const { data: product, error: updateError } = await supabase
-    .from('products')
-    .update({
-      ...(input.name && { name: input.name }),
-      ...(input.description !== undefined && { description: input.description || null }),
-      ...(input.imageUrl !== undefined && { image_url: input.imageUrl || null }),
-      ...(input.customFields !== undefined && { custom_fields: input.customFields }),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', productId)
-    .select()
-    .single()
-
-  if (updateError) {
-    throw new Error(`Failed to update product: ${updateError.message}`)
-  }
-
-  revalidateTag('products')
-  return product
 }
 
 export async function deleteProduct(productId: string) {

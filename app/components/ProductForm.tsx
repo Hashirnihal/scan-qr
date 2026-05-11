@@ -118,9 +118,11 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       }
 
       if (product) {
-        await updateProduct(product.id, payload)
+        const result = await updateProduct(product.id, payload)
+        if (result.error) { setError(result.error); return }
       } else {
-        await createProduct(payload)
+        const result = await createProduct(payload)
+        if (result.error) { setError(result.error); return }
       }
 
       onSuccess()
