@@ -30,10 +30,13 @@ export default function NavyTemplate({ product, subItems }: Props) {
         <div className="pointer-events-none absolute -bottom-16 -right-16 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
         <div className="pointer-events-none absolute top-1/2 left-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-400/10 blur-2xl" />
         <div className="relative mx-auto max-w-3xl px-5 text-center sm:px-8">
-          <div className="animate-fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/15 px-4 py-1.5 backdrop-blur">
+          
+          {!product.image_url && (
+            <div className="animate-fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/15 px-4 py-1.5 backdrop-blur">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-300" />
             <span className="text-xs font-semibold uppercase tracking-widest text-blue-200">{product.code}</span>
           </div>
+          )}
           {product.image_url && (
             <div className="animate-fade-up mb-4 flex justify-center">
               <div className="h-20 w-20 overflow-hidden rounded-full ring-4 ring-white/30 shadow-xl">
