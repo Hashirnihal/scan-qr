@@ -17,7 +17,7 @@ export interface Product {
   name: string
   description: string | null
   image_url: string | null
-  custom_fields: { sub_items?: SubItem[] } & Record<string, unknown>
+  custom_fields: { sub_items?: SubItem[]; template?: string } & Record<string, unknown>
   qr_code_url: string | null
   created_by: string
   created_at: string

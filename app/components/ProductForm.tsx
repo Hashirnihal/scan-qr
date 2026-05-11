@@ -13,6 +13,8 @@ import { Card } from '@/components/ui/card'
 import { useState, useRef } from 'react'
 import { Plus, ImageIcon, Trash2 } from 'lucide-react'
 import Image from 'next/image'
+import { TemplatePicker } from '@/app/components/TemplatePicker'
+import type { TemplateId } from '@/lib/templates'
 
 interface ProductFormProps {
   product?: Product | null
@@ -46,6 +48,9 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
   const [code, setCode] = useState(product?.code ?? '')
   const [name, setName] = useState(product?.name ?? '')
+  const [template, setTemplate] = useState<TemplateId>(
+    ((product?.custom_fields?.template as string | undefined) ?? 'navy') as TemplateId
+  )
   const [subItems, setSubItems] = useState<SubItemDraft[]>(
     existingSubItems.length > 0
       ? existingSubItems
@@ -109,7 +114,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       const payload = {
         code: code.trim(),
         name: name.trim(),
-        customFields: { sub_items: resolvedItems },
+        customFields: { sub_items: resolvedItems, template },
       }
 
       if (product) {
@@ -169,6 +174,9 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             This name appears on the QR landing page
           </p>
         </div>
+
+        {/* Template Picker */}
+        <TemplatePicker value={template} onChange={setTemplate} />
 
         {/* Sub-Items */}
         <div className="space-y-4">
