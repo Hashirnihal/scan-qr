@@ -188,6 +188,7 @@ export default function PortalPage() {
                 setIsFormOpen(true)
               }}
               onDelete={handleDeleteProduct}
+              onRefresh={handleProductCreated}
             />
           </div>
         </div>

@@ -18,6 +18,7 @@ interface ProductListProps {
   products: Product[]
   onEdit: (product: Product) => void
   onDelete: (productId: string) => void
+  onRefresh: () => void
 }
 
 function downloadQR(qrDataUrl: string, productCode: string) {
@@ -27,16 +28,15 @@ function downloadQR(qrDataUrl: string, productCode: string) {
   a.click()
 }
 
-export function ProductList({ products, onEdit, onDelete }: ProductListProps) {
+export function ProductList({ products, onEdit, onDelete, onRefresh }: ProductListProps) {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [regenerating, setRegenerating] = useState<string | null>(null)
 
   const handleRegenerate = async (product: Product) => {
     setRegenerating(product.id)
     try {
-      const newQr = await regenerateProductQR(product.id, product.code)
-      // Update the QR in-place without a full reload
-      product.qr_code_url = newQr
+      await regenerateProductQR(product.id, product.code)
+      onRefresh()
     } finally {
       setRegenerating(null)
     }
