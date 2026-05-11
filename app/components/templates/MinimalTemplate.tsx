@@ -31,6 +31,13 @@ export default function MinimalTemplate({ product, subItems }: Props) {
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             <span className="text-xs font-semibold uppercase tracking-widest text-indigo-500">{product.code}</span>
           </div>
+          {product.image_url && (
+            <div className="animate-fade-up mb-4 flex justify-center">
+              <div className="h-20 w-20 overflow-hidden rounded-full ring-4 ring-indigo-200 shadow-md">
+                <Image src={product.image_url} alt={product.name} width={80} height={80} className="h-full w-full object-cover" />
+              </div>
+            </div>
+          )}
           <h1 className="animate-fade-up-delay-1 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
             {product.name}
           </h1>

@@ -61,6 +61,9 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   )
 
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+  const logoInputRef = useRef<HTMLInputElement | null>(null)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(product?.image_url ?? null)
 
   const updateSubItem = (id: string, patch: Partial<SubItemDraft>) => {
     setSubItems((prev) =>
@@ -89,6 +92,16 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     updateSubItem(id, { pendingFile: file, previewUrl })
   }
 
+  const handleLogoChange = (file: File | null) => {
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Logo must be 10 MB or smaller.')
+      return
+    }
+    setLogoFile(file)
+    setLogoPreview(URL.createObjectURL(file))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!code.trim() || !name.trim()) {
@@ -111,10 +124,20 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
         resolvedItems.push({ id: item.id, name: item.name, description: item.description, image_url: imageUrl })
       }
 
-      const payload = {
+      const payload: Parameters<typeof createProduct>[0] = {
         code: code.trim(),
         name: name.trim(),
         customFields: { sub_items: resolvedItems, template },
+      }
+
+      // Upload logo if a new file was selected
+      if (logoFile) {
+        const dataUrl = await readFileAsDataUrl(logoFile)
+        const result = await uploadProductImage(dataUrl, 'logo')
+        if (result.error) { setError(`Logo upload failed: ${result.error}`); setLoading(false); return }
+        payload.imageUrl = result.url
+      } else if (!logoPreview) {
+        payload.imageUrl = undefined // no logo
       }
 
       if (product) {
@@ -141,6 +164,51 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             {error}
           </div>
         )}
+
+        {/* Logo upload */}
+        <div className="space-y-1">
+          <label className="text-sm font-semibold text-foreground">
+            Brand Logo <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <p className="text-xs text-muted-foreground">Shown above the product heading on the QR page. Max 10 MB.</p>
+          <div className="flex items-center gap-4 mt-2">
+            <div
+              className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border bg-secondary/50 hover:border-primary/50"
+              onClick={() => logoInputRef.current?.click()}
+            >
+              {logoPreview ? (
+                <Image src={logoPreview} alt="logo" width={80} height={80} className="h-full w-full object-cover rounded-full" />
+              ) : (
+                <ImageIcon className="h-7 w-7 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => logoInputRef.current?.click()}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {logoPreview ? 'Change logo' : 'Upload logo'}
+              </button>
+              {logoPreview && (
+                <button
+                  type="button"
+                  onClick={() => { setLogoFile(null); setLogoPreview(null) }}
+                  className="text-xs text-destructive hover:underline"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleLogoChange(e.target.files?.[0] ?? null)}
+          />
+        </div>
 
         {/* Product Code */}
         <div className="space-y-1">

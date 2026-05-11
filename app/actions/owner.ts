@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { Product } from '@/app/actions/products'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { OWNER_EMAIL } from '@/lib/constants'
 import type { UserRecord } from '@/lib/constants'
 
@@ -71,7 +71,7 @@ export async function ownerUpdateProduct(
     .single()
 
   if (error) throw new Error(error.message)
-  revalidateTag('products')
+  revalidatePath('/owner')
   return data as Product
 }
 
@@ -84,7 +84,7 @@ export async function ownerDeleteProduct(productId: string): Promise<{ error?: s
     .update({ archived: true, updated_at: new Date().toISOString() })
     .eq('id', productId)
   if (error) return { error: error.message }
-  revalidateTag('products')
+  revalidatePath('/owner')
   return {}
 }
 
@@ -102,6 +102,6 @@ export async function ownerDeleteUser(userId: string): Promise<{ error?: string 
   // Delete the auth user
   const { error } = await service.auth.admin.deleteUser(userId)
   if (error) return { error: error.message }
-  revalidateTag('products')
+  revalidatePath('/owner')
   return {}
 }

@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import QRCode from 'qrcode'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
 export interface SubItem {
   id: string
@@ -118,7 +118,7 @@ export async function createProduct(input: CreateProductInput): Promise<{ produc
 
     if (createError) return { error: `Failed to create product: ${createError.message}` }
 
-    revalidateTag('products')
+    revalidatePath('/portal')
     return { product: product as Product }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Failed to create product' }
@@ -153,7 +153,7 @@ export async function regenerateProductQR(productId: string, productCode: string
     .eq('id', productId)
 
   if (error) throw new Error(`Failed to regenerate QR: ${error.message}`)
-  revalidateTag('products')
+  revalidatePath('/portal')
   return qrCodeUrl
 }
 
@@ -187,7 +187,7 @@ export async function updateProduct(
 
     if (updateError) return { error: `Failed to update product: ${updateError.message}` }
 
-    revalidateTag('products')
+    revalidatePath('/portal')
     return { product: product as Product }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Failed to update product' }
@@ -217,7 +217,7 @@ export async function deleteProduct(productId: string) {
     throw new Error(`Failed to delete product: ${deleteError.message}`)
   }
 
-  revalidateTag('products')
+  revalidatePath('/portal')
 }
 
 export async function getProduct(code: string) {

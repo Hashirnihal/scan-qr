@@ -38,6 +38,13 @@ export default function SunsetTemplate({ product, subItems }: Props) {
             <Sun className="h-3.5 w-3.5 text-amber-300" />
             <span className="text-xs font-semibold uppercase tracking-widest text-amber-200">{product.code}</span>
           </div>
+          {product.image_url && (
+            <div className="animate-fade-up mb-4 flex justify-center">
+              <div className="h-20 w-20 overflow-hidden rounded-full shadow-xl" style={{ boxShadow: '0 0 0 4px rgba(251,191,36,0.4)' }}>
+                <Image src={product.image_url} alt={product.name} width={80} height={80} className="h-full w-full object-cover" />
+              </div>
+            </div>
+          )}
           <h1
             className="animate-fade-up-delay-1 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl"
             style={{ textShadow: '0 2px 30px rgba(251,191,36,0.35)' }}

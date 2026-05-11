@@ -36,6 +36,13 @@ export default function MidnightTemplate({ product, subItems }: Props) {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-400" />
             <span className="text-xs font-semibold uppercase tracking-widest text-purple-300">{product.code}</span>
           </div>
+          {product.image_url && (
+            <div className="animate-fade-up mb-4 flex justify-center">
+              <div className="h-20 w-20 overflow-hidden rounded-full shadow-xl" style={{ ring: '4px solid rgba(168,85,247,0.4)', boxShadow: '0 0 0 4px rgba(168,85,247,0.35)' }}>
+                <Image src={product.image_url} alt={product.name} width={80} height={80} className="h-full w-full object-cover" />
+              </div>
+            </div>
+          )}
           <h1
             className="animate-fade-up-delay-1 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl"
             style={{ background: 'linear-gradient(135deg, #e879f9 0%, #a855f7 50%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}

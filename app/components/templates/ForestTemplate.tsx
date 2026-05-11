@@ -38,6 +38,13 @@ export default function ForestTemplate({ product, subItems }: Props) {
             <Leaf className="h-3.5 w-3.5 text-emerald-400" />
             <span className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{product.code}</span>
           </div>
+          {product.image_url && (
+            <div className="animate-fade-up mb-4 flex justify-center">
+              <div className="h-20 w-20 overflow-hidden rounded-full shadow-xl" style={{ boxShadow: '0 0 0 4px rgba(16,185,129,0.35)' }}>
+                <Image src={product.image_url} alt={product.name} width={80} height={80} className="h-full w-full object-cover" />
+              </div>
+            </div>
+          )}
           <h1
             className="animate-fade-up-delay-1 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl"
             style={{ textShadow: '0 2px 20px rgba(16,185,129,0.3)' }}
